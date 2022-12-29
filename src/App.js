@@ -1,9 +1,9 @@
+import IntrestCalulator from "./components/intrestcalculator/InterestCalulator";
 
 function App() {
   return (
     <div className="App">
-
-      <h1>SI and CI calculator</h1>
+      <IntrestCalulator/>
     </div>
   );
 }
