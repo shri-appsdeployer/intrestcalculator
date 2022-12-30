@@ -1,7 +1,12 @@
-import React, {useState, useEffect } from "react";
+import React, {useState } from "react";
 import "./InterestCalulator.scss";
+import { useDispatch } from "react-redux";
+import { addToSI,addToCI,setType, setRangeForCI,setRangeForSI } from "../../features/Simple-Compound/InterestSlice";
+import Chart from "../Chart/Chart";
 
 const IntrestCalulator = () => {
+
+  const dispatch = useDispatch();
   const [interestType, setInterestType] = useState('SI');
   const [principal, setPrincipal] = useState(0);
   const [rate, setRate] = useState(0);
@@ -10,67 +15,50 @@ const IntrestCalulator = () => {
   const [totalValue,setTotalValue]= useState(0);
   const [frequency, setFrequency] = useState('D');
 
-
-  // useEffect(()=>{
-  //   console.log(interestType)
-  //   console.log(principal)
-  //   console.log(rate)
-  //   console.log(period)
-  // },[interestType,principal,rate,period])
-
-  // calculate simple Interest
   const simpleInterest=()=>{
-      let periodInYear = period/12;
-      let interest = (principal*rate*periodInYear)/100;
-      let total = Number(principal) +Number(interest);
-      setInterestEarned(interest);
-      setTotalValue(total)
+    let interest;
+       for(let i =0;i<=period;i++){
+         let periodInYear = i/12;
+         interest = (principal*rate*periodInYear)/100;
+         dispatch(addToSI(interest))
+        }
+        let total = Number(principal) +Number(interest);
+        setTotalValue(total)
+        setInterestEarned(interest);
   }
   // calculate compound Interest
   const compoundInterest=()=>{
     let n = 0;
-      switch (frequency) {
-        case 'D':
-          n = 365;
-          break;
-        case 'W':
-          n = 52;
-          break;
-        case 'M':
-          n = 12;
-          break;
-        case 'Q':
-          n = 4;
-          break;
-        case 'H':
-          n=2;
-          break;
-        case 'A':
-          n=1;
-          break;
-        default:
-          break;
-      }
-    let t = period/12;
-    let r = rate/100;
-    let amount = principal* (Math.pow((1 + (r/n)), ( n* t)));
-    let interest = amount-principal;
-    setInterestEarned(interest);
+      switch (frequency) {case 'D':n = 365;break;case 'W':n = 52;break;case 'M':n = 12;break;case 'Q':n = 4;break;case 'H':n=2;break;case 'A':n=1;break;default:n=365;break;}
+      let r = rate/100;
+      let t,amount,interest;
+      for(let i=0;i<=period;i++){
+       t = i/12;
+       amount = principal* (Math.pow((1 + (r/n)), ( n* t)));
+       interest = amount-principal;
+       dispatch(addToCI(interest));
+      
+    }
     setTotalValue(amount);
+    setInterestEarned(interest);
   }
   // Calculate overAll 
   const Calculate=()=>{
     if(interestType ==='SI'){
-        simpleInterest()
+      dispatch(setType(interestType));
+      dispatch(setRangeForSI(period))
+
+      simpleInterest()
     }
     else if(interestType ==='CI'){
-        compoundInterest()
+      dispatch(setType(interestType));
+      dispatch(setRangeForCI(period))
+      compoundInterest()
     }
     else{
       alert('Something went Wrong!')
     }
   }
-
 
   return (
     <>
@@ -126,7 +114,7 @@ const IntrestCalulator = () => {
         </div>
 
         <div className="chart-wrapper">
-          <h1>chart</h1>
+          <Chart/>
         </div>
 
       </div>
